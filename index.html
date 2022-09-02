@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      @font-face {
+        font-family: SartoshiScript;
+        src: url(https://www.sartoshiscript.xyz/SartoshiScript-Regular.otf)
+      }
+      h1 {
+        font-size: 5.9vw;
+      }
+      .font-script {
+        font-family: SartoshiScript,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji
+      }
+      .large {
+        width: 100%;
+        max-width: 100%;
+      }
+      span {
+        font-size: 2vmin;
+      }
+      .right {
+        position:fixed;
+        top: 10px;
+        display: block;
+        right: 10px;
+        width: 50%;
+      }
+    </style>
+
+  </head>
+  <body class="font-script">
+    <h1>we all mfers @~</h1>
+    <div id="traits">
+      <textarea class="large" rows="10" cols="50">[
+ ["background", "space"]
+ ]
+      </textarea>
+    </div>
+    <div id="render">
+      <button>Render</button>
+    </div>
+    <span class="large">
+      <div id="mfer" class="right">
+        <p>rendering</p>
+      </div>
+    </span>
+    <div id="attributes">
+      <p>loading</p>
+    </div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.0/ethers.umd.min.js" integrity="sha512-+Ftowzj6zmwHlez4gpQxd7QQUzK/ocgu10pukN3Pyqblni7yJ9r/WTpNHoYKL4DGOp5givxSUZjJcVY7Az9OAQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script type="application/javascript">
+      (async () => {
+          const slurp = (uri) => fetch(uri).then(response => response.json())
+
+          console.log('loading')
+          const RINKEBY = 4
+          const hash = `0x${'00'.repeat(32)}`
+          const address = '0x8bdB04aE9a1Cf071b8d71D5f39f5876F3A76A33A'
+          const provider = new ethers.providers.AnkrProvider(RINKEBY)
+
+          const [abi, traits] = await Promise.all(['abi', 'traits'].map(f => `${f}.json`).map(uri => slurp(uri)))
+          const contract = new ethers.Contract(address, abi, provider)
+
+          const render = async () => {
+              const traits = JSON.parse(document.querySelector('#traits textarea').value)
+              const svg = await contract.render(hash, traits)
+              const el = document.querySelector('#mfer')
+              el.innerHTML = svg
+          }
+
+          document.querySelector('#attributes p').innerHTML = traits
+              .filter(({ type }) => !type.includes('1/1'))
+              .map(({ type, values }) => `
+<span data-type="${type}">
+  <b>${type}:</b>
+  ${values.map(v => '<div>' + v + '</div>').join('')}
+</span>`).join('')
+
+
+          document.querySelector('#attributes').addEventListener('click', (e) => {
+              window.e = e
+              const type = e.target.parentElement.dataset.type.replace('4:20', '4_20')
+              const el = document.querySelector('#traits textarea')
+
+              const trait = e.target.innerText
+
+              const traits = JSON.parse(el.value).filter(([k, v]) => k !== type)
+              el.value = JSON.stringify(e.target.tagName === 'B' ? traits : traits.concat([[type, trait]]), null, 2)
+              render()
+              console.log(type, trait)
+          })
+
+          const handler = (e) => {
+              e.preventDefault()
+              return render()
+          }
+          document.querySelector('#render button').addEventListener('click', handler)
+
+          await render()
+
+          console.log(name)
+      })().catch(err => console.error(err))
+    </script>
+  </body>
+</html>
